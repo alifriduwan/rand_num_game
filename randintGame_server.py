@@ -16,19 +16,22 @@ def game_num_rand(conn, addr):
             round_play += 1
             
             if round_play > 20:
-                print("lose")
+                msg = "Lost!"
+                conn.sendall(msg.encode())
                 break
             
             if num_guess < rand_num:
-                print(f"Your num_guess of {num_guess} is too low")
+                msg = (f"Your number guess of {num_guess} lower than random number")
                 
             elif num_guess > rand_num:
-                print(f"Your num_guess of {num_guess} is too high")
+                msg = (f"Your number guess of {num_guess} highter than random number")
                 
             else:
-                print("win")
+                msg = "Won!"
+                conn.sendall(msg.encode())
                 break
 
+            conn.sendall(msg.encode())
     conn.close()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
