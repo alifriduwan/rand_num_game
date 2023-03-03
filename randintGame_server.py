@@ -4,22 +4,23 @@ import socket
 HOST = '127.0.0.1'
 PORT = 65432
 
-def game_num_rand(conn, addr):
+def handle_client(conn, addr):
+    print('Connected by', addr)
     rand_num = random.randint(1, 100)
     round_play = 0
 
     while True:
+        try:
             data = conn.recv(1024)
             if not data:
                 break
             num_guess = int(data.decode())
-            round_play += 1
             
             if round_play > 20:
-                msg = "Lost!"
+                msg = "Lose"
                 conn.sendall(msg.encode())
                 break
-            
+            round_play += 1
             if num_guess < rand_num:
                 msg = (f"Your number guess of {num_guess} lower than random number")
                 
@@ -27,11 +28,15 @@ def game_num_rand(conn, addr):
                 msg = (f"Your number guess of {num_guess} highter than random number")
                 
             else:
-                msg = "Won!"
+                msg = "Win"
                 conn.sendall(msg.encode())
                 break
-
+                
             conn.sendall(msg.encode())
+
+        except ValueError:
+            conn.sendall("Invalid input, please enter a number between 1 and 100".encode())
+
     conn.close()
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -39,4 +44,4 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     s.listen()
     while True:
         conn, addr = s.accept()
-        game_num_rand(conn, addr)
+        handle_client(conn, addr)
